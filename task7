@@ -1,0 +1,79 @@
+CREATE TABLE authors (
+    author_id INTEGER PRIMARY KEY,
+    name VARCHAR(100)
+);
+
+CREATE TABLE books (
+    book_id INTEGER PRIMARY KEY,
+    title VARCHAR(200),
+    author_id INTEGER,
+    price DECIMAL(10,2),
+    FOREIGN KEY (author_id) REFERENCES authors(author_id)
+);
+
+CREATE TABLE issued_books (
+    issue_id INTEGER PRIMARY KEY,
+    book_id INTEGER,
+    student_name VARCHAR(100),
+    issue_date DATE,
+    FOREIGN KEY (book_id) REFERENCES books(book_id)
+);
+
+INSERT INTO authors VALUES
+(1, 'APJ Abdul Kalam'),
+(2, 'Chetan Bhagat'),
+(3, 'Sudha Murty');
+
+INSERT INTO books VALUES
+(1, 'Wings of Fire', 1, 450),
+(2, 'Half Girlfriend', 2, 300),
+(3, 'Wise & Otherwise', 3, 350),
+(4, 'Grandma’s Bag of Stories', 3, 200);
+
+INSERT INTO issued_books VALUES
+(1, 1, 'Rahul', '2025-01-10'),
+(2, 3, 'Sneha', '2025-01-12');
+
+CREATE VIEW vw_book_details AS
+SELECT 
+    b.book_id,
+    b.title,
+    a.name AS author_name,
+    b.price
+FROM books b
+JOIN authors a ON a.author_id = b.author_id;
+
+CREATE VIEW vw_issued_books AS
+SELECT 
+    i.issue_id,
+    i.student_name,
+    b.title AS book_title,
+    a.name AS author_name,
+    i.issue_date
+FROM issued_books i
+JOIN books b ON b.book_id = i.book_id
+JOIN authors a ON a.author_id = b.author_id;
+
+CREATE VIEW vw_expensive_books AS
+SELECT book_id, title, price
+FROM books
+WHERE price > 300;
+
+CREATE VIEW vw_author_book_count AS
+SELECT 
+    a.author_id,
+    a.name,
+    COUNT(b.book_id) AS total_books
+FROM authors a
+LEFT JOIN books b ON b.author_id = a.author_id
+GROUP BY a.author_id, a.name;
+
+CREATE VIEW vw_student_names AS
+SELECT student_name
+FROM issued_books;
+
+CREATE VIEW vw_low_price_books AS
+SELECT *
+FROM books
+WHERE price < 400
+WITH CHECK OPTION;
